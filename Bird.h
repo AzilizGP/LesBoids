@@ -1,3 +1,14 @@
+/*
+A FAIRE
+- créer un tableau Nx2 de Birds
+- le remplir de xi et yi aléatoires
+- définir le rayon de perception par une méthode qui compte le nombre de bird K dans ce cercle
+- définir la distance de contact c
+- définir les obstacles
+- définir v1, v2 et v3
+*/
+
+
 #ifndef __BIRD_H__
 #define __BIRD_H__
 
