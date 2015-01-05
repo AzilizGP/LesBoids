@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "bwindow.h"
-#include "Bird.h"
+#include "Boid.h"
 
 int main()
 {

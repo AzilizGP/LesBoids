@@ -1,7 +1,16 @@
+/*
+A FAIRE
+- créer un tableau Nx2 de Birds
+- le remplir de xi et yi aléatoires
+- définir le rayon de perception par une méthode qui compte le nombre de bird K dans ce cercle
+- définir la distance de contact c
+- définir les obstacles
+- définir v1, v2 et v3
+*/
 
 
-#ifndef __BIRD_H__
-#define __BIRD_H__
+#ifndef __BOID_H__
+#define __BOID_H__
 
 
 // ===========================================================================
@@ -9,6 +18,7 @@
 // ===========================================================================
 #include <cstdio>
 #include <cstdlib>
+#include "Bird.h"
 
 
 
@@ -23,7 +33,7 @@
 //                              Class declarations
 // ===========================================================================
 
-class Bird
+class Boid
 {
   public :
     
@@ -34,21 +44,25 @@ class Bird
     // =======================================================================
     //                               Constructors
     // =======================================================================
-    Bird(void);                            // constructor by default
+    Boid(void);                            // constructor by default
 
     // =======================================================================
     //                                Destructor
     // =======================================================================
-    ~Bird(void);
+    ~Boid(void);
 
     // =======================================================================
     //                            Accessors: getters
     // =======================================================================
-    double _x(void);
-    double _y(void);
-	double _vx(void);
-	double _vy(void);
-	double _dt(void) const;
+
+    int _N(void) const;
+
+	double _r(void) const;
+
+	double _gam1(void) const;
+	double _gam2(void) const;
+	double _gam3(void) const;
+
 
     // =======================================================================
     //                            Accessors: setters
@@ -61,14 +75,23 @@ class Bird
     // =======================================================================
     //                              Public Methods
     // =======================================================================
-	double xmove(void);
-	double ymove(void);
+	double vxevol(void);
+	double v1x(void);
+	double v2x(void);
+	double v3x(void);
+	double vyevol(void);
+	double v1y(void);
+	double v2y(void);
+	double v3y(void);
+	int K();
 	
 
     // =======================================================================
     //                             Public Attributes
     // =======================================================================
-	static const double dt;                           // lapse of time
+    
+	static const int N; // number of birds in the whole environment
+//	Bird *Birds;
 
 
 
@@ -77,10 +100,12 @@ class Bird
     // =======================================================================
     //                             Protected Attributes
     // =======================================================================
-    double x;
-    double y;
-    double vx;
-    double vy;
+   static const double r;                            // perception radius
+    
+ // parameters gamma1, gamma2 and gamma3  
+	static const double gam1;
+    static const double gam2;
+    static const double gam3;
 
 };
 
@@ -106,3 +131,4 @@ class Bird
 
 
 #endif
+
