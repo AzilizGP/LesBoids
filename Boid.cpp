@@ -16,6 +16,8 @@
 // ===========================================================================
 //                                 Project Files
 // ===========================================================================
+#include <cstdio>
+#include <cstdlib>
 #include "Boid.h"
 #include "Bird.h"
 
@@ -56,7 +58,7 @@ Boid::~Boid(void)
 //                                 Public Methods
 // ===========================================================================
 
-// Boid::Bird *Birds = new Bird[N];
+ Bird* Boid::Birds = new Bird[Boid::N];
 
 /*
  double Boid::v1x(void)

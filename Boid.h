@@ -91,7 +91,6 @@ class Boid
     // =======================================================================
     
 	static const int N; // number of birds in the whole environment
-//	Bird *Birds;
 
 
 
@@ -101,7 +100,8 @@ class Boid
     //                             Protected Attributes
     // =======================================================================
    static const double r;                            // perception radius
-    
+   static Bird* Birds;                                      // table of birds
+
  // parameters gamma1, gamma2 and gamma3  
 	static const double gam1;
     static const double gam2;
