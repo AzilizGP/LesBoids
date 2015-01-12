@@ -45,7 +45,8 @@ class Boid
     //                               Constructors
     // =======================================================================
     Boid(void);                            // constructor by default
-
+	Boid( const Boid& boid );
+	
     // =======================================================================
     //                                Destructor
     // =======================================================================
@@ -58,7 +59,10 @@ class Boid
     int _N(void) const;
 
 	double _r(void) const;
+	double _c(void) const;
 
+
+	Bird* _population(void);
 	double _gam1(void) const;
 	double _gam2(void) const;
 	double _gam3(void) const;
@@ -72,36 +76,41 @@ class Boid
     //                                Operators
     // =======================================================================
 	    
+	Bird operator[] (int p);             // return the pth bird of the population
+ 
     // =======================================================================
     //                              Public Methods
     // =======================================================================
-	double vxevol(void);
-	double v1x(void);
-	double v2x(void);
-	double v3x(void);
-	double vyevol(void);
-	double v1y(void);
-	double v2y(void);
-	double v3y(void);
-	int K();
-	
+  	int _K(int i);                     //calculates the number of birds in the perception radius of the ith bird
+	double v1x(int i);
+	double v2x(int i);
+	double v3x(int i);
+	double vxevol(int i);
+	double v1y(int i);
+	double v2y(int i);
+	double v3y(int i);
+	double vyevol(int i);
+		
 
     // =======================================================================
     //                             Public Attributes
     // =======================================================================
     
-	static const int N; // number of birds in the whole environment
+	static const int N; 			// number of birds in the whole environment
+
 
 
 
   protected :
-
+	
     // =======================================================================
     //                             Protected Attributes
     // =======================================================================
-   static const double r;                            // perception radius
-   static Bird* Birds;                                      // table of birds
+    static const double r;                            // perception radius
+    static const double c;                            // contact distance
 
+    Bird* population;                           // table of birds
+ 
  // parameters gamma1, gamma2 and gamma3  
 	static const double gam1;
     static const double gam2;

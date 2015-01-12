@@ -33,19 +33,29 @@
 // ===========================================================================
 
  const double Bird::dt=1/100;
-
+//	srand(time(NULL));
+int I=(((int) rand())/RAND_MAX)*100;
 
 
 // ===========================================================================
 //                                  Constructors
 // ===========================================================================
+
 Bird::Bird(void)
 {
-	srand(time(NULL));
-	x = 0;
-	y = 0;
+	x = (((double) rand())/RAND_MAX)*100;         //gives  a random number between 0 and 100
+	y = (((double) rand())/RAND_MAX)*100;
 	vx = rand();
 	vy = rand();
+}
+
+Bird::Bird( const Bird& bird )
+{
+	// printf("call to Bird copy constrcutor\n");
+	x = bird.x;
+	y = bird.y;
+	vx = bird.vx;
+	vy = bird.vy;
 }
 
 // ===========================================================================
