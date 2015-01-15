@@ -32,7 +32,7 @@
 //                         Definition of static attributes
 // ===========================================================================
 
- const double Bird::dt=1/100;
+ const double Bird::dt=0.1;
 
 // ===========================================================================
 //                                  Constructors
@@ -40,10 +40,10 @@
 
 Bird::Bird(void)
 {
-	x = (((double) rand())/RAND_MAX)*100;         //gives  a random number between 0 and 100
-	y = (((double) rand())/RAND_MAX)*100;
-	vx = rand();
-	vy = rand();
+	x = (((double) rand())/RAND_MAX)*800;         //gives  a random number between 0 and 100
+	y = (((double) rand())/RAND_MAX)*800;
+	vx = (((double) rand())/RAND_MAX);
+	vy = (((double) rand())/RAND_MAX);
 }
 
 Bird::Bird( const Bird& bird )
@@ -65,18 +65,6 @@ Bird::~Bird(void)
 // ===========================================================================
 //                                 Public Methods
 // ===========================================================================
-
-double Bird::xmove(void)
-{
-	x += dt*vx;
-}
-//--------------------------------------------------------------------------
-double Bird::ymove(void)
-{
-	y += dt*vy;
-}
-
-
 
 // ===========================================================================
 //                                Protected Methods

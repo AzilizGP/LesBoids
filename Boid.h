@@ -62,14 +62,17 @@ class Boid
 
 	double _r(void) const;
 	double _c(void) const;
-
+	double _Rp(void) const;
+	double _vpx(void) const;
+	double _vpy(void) const;
 
 	Bird* _population(void);
 	Obstacle* _obstacles(void);
+	Bird _predator(void);
 	double _gam1(void) const;
 	double _gam2(void) const;
 	double _gam3(void) const;
-
+	double _gam4(void) const;
 
     // =======================================================================
     //                            Accessors: setters
@@ -90,19 +93,28 @@ class Boid
 	double v1x(int i);
 	double v2x(int i);
 	double v3x(int i);
-	double vxevol(int i);
+	double v4x(int i);
+	double vx(int i);
 	double v1y(int i);
 	double v2y(int i);
 	double v3y(int i);
-	double vyevol(int i);
-		
+	double v4y(int i);
+	double vy(int i);
+	Bird prey(void);         // return the closest prey to the predator
+	int preyindex(void);      // return the closest prey's index
+	double preyx(void);     // return the coordinate x of the closest prey to the predator
+	double preyy(void);	 // return the coordinate y of the closest prey to the predator
+	double vpredx(void);
+	double vpredy(void);
+
 
     // =======================================================================
     //                             Public Attributes
     // =======================================================================
     
 	static const int N; 			// number of birds in the whole environment
-	static const int P;
+	static const int P;             // number of obstacles
+    Bird predator;									// predator
 
 
 
@@ -113,7 +125,9 @@ class Boid
     // =======================================================================
     static const double r;                            // perception radius
     static const double c;                            // contact distance
-
+    static const double Rp; 						// predator radius
+    static const double vpx;
+    static const double vpy;
     Bird* population;                           // table of birds
     Obstacle* obstacles; 							// table of obstacles
  
@@ -121,7 +135,7 @@ class Boid
 	static const double gam1;
     static const double gam2;
     static const double gam3;
-
+    static const double gam4;
 };
 
 

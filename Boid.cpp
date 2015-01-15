@@ -1,9 +1,11 @@
 //****************************************************************************
-// implémenter v3v et v3y
-// les obstacles
-// K' -> idem que pour K, s'implémente dans v3
 // 
-//
+// 
+// partie graphique ralentir les oiseau -> Bird.h ralentir les vitesses
+// vp
+// vent
+// 
+// ? déclarer dans le bird.h la taille de la fenêtre WxH
 //****************************************************************************
 
 
@@ -37,14 +39,18 @@
 //                         Definition of static attributes
 // ===========================================================================
 
- const int Boid::N=100;					// number of birds
- const int Boid::P=10;					// number of obstacles
- const double Boid::r=20;				// perception radius
- const double Boid::c=10;				// contact distance
+ const int Boid::N=20;					// number of birds
+ const int Boid::P=5;					// number of obstacles
+ const double Boid::r=100;				// perception radius
+ const double Boid::c=60;				// contact distance
+ const double Boid::Rp=30;				// predator radius
+ const double Boid::vpx=0.5;
+ const double Boid::vpy=0.5;
 
  const double Boid::gam1=1;
  const double Boid::gam2=1;
  const double Boid::gam3=1;
+ const double Boid::gam4=1;
 
 // ===========================================================================
 //                                  Constructors
@@ -52,7 +58,8 @@
 Boid::Boid(void)                      // create a population of N birds  in a table
 {
 	population = new Bird[N];
-	obstacles = new Obstacle[P]; 	
+	obstacles = new Obstacle[P];
+	Bird predator; 	
 }
 
 Boid::Boid( const Boid& boid )
@@ -296,7 +303,6 @@ int Boid::_O(int i)                     //calculates the number of obstacles at 
 			{
 				xj= this->population[j]._x();
 				vbx += xj - xi;
-				Kprim++;
 			}
 		}
 			vbx = vbx / Kprim;
@@ -314,7 +320,6 @@ int Boid::_O(int i)                     //calculates the number of obstacles at 
 			{
 				xj= this->obstacles[j]._x();
 				vox += xj - xi;
-				O++;
 			}
 		}
 			vox = vox / O;
@@ -366,29 +371,105 @@ int Boid::_O(int i)                     //calculates the number of obstacles at 
 	v3y = - voy - vby;
 	return v3y;
  }
-
+//--------------------------------------------------------------------------
+ Bird Boid::prey(void)          // return the closest prey 
+{
+	int x=100000;                // x = smallest distance prey-predator
+	int u;
+	int m;						// l = index of the closest prey to the predator
+	int k;
+	for(k=0; k< this->N; k++)
+	{
+		u = distance(this->population[k],this->predator);
+		if(u < x )
+		{
+			x = u;
+			m=k;
+		}
+	}
+	return this->population[m];	
+}
+//--------------------------------------------------------------------------
+ int Boid::preyindex(void)            // return the index of the closest prey
+{
+	int x=100000;                // x = smallest distance prey-predator
+	int u;
+	int m;						// l = index of the closest prey to the predator
+	int k;
+	for(k=0; k< this->N; k++)
+	{
+		u = distance(this->population[k],this->predator);
+		if(u < x )
+		{
+			x = u;
+			m=k;
+		}
+	}
+	return m;	
+}
+//--------------------------------------------------------------------------
+double Boid::preyx(void)            // return the prey's coordinate x
+{
+	return this->prey()._x();
+}
+//--------------------------------------------------------------------------
+double Boid::preyy(void)            // return the prey's coordinate y
+{
+	return this->prey()._y();
+}
+//--------------------------------------------------------------------------
+double Boid::v4x(int i)
+{
+	return -(this->preyx() - this->population[i]._x()) / sqrt(this->preyx()*this->preyx() + this->population[i]._x()*this->population[i]._x());
+}
+//--------------------------------------------------------------------------
+double Boid::v4y(int i)
+{
+	return -(this->preyy() - this->population[i]._y()) / sqrt(this->preyy()*this->preyy() + this->population[i]._y()*this->population[i]._y());	
+}
 //--------------------------------------------------------------------------
 
-double Boid::vxevol(int i)
+double Boid::vx(int i)
 {
-	return this->population[i]._vx() + this->population[i]._dt() * (gam1*(this->v1x(i)) + gam2*(this->v2x(i)) + gam3*(this->v3x(i)));
+	return this->population[i]._vx() + this->population[i]._dt() * (gam1*this->v1x(i) + gam2*this->v2x(i) + gam3*this->v3x(i) + gam4*this->v4x(i));
 }
 
 //--------------------------------------------------------------------------
 
-double Boid::vyevol(int i)
+double Boid::vy(int i)
 {
-	return this->population[i]._vy() + this->population[i]._dt() * (gam1*this->v1y(i) + gam2*this->v2y(i) + gam3*this->v3y(i));
+	return this->population[i]._vy() + this->population[i]._dt() * (gam1*this->v1y(i) + gam2*this->v2y(i) + gam3*this->v3y(i) + gam4*this->v4y(i));
 }
 //--------------------------------------------------------------------------
 
-
+double Boid::vpredx(void)
+{
+	double vpredx;
+	if(distance(this->predator , this->prey()) > Rp)
+	{
+		vpredx=(((double) rand())/RAND_MAX);
+	}
+	else
+	{
+		vpredx = vpx * (-this->v4x(this->preyindex())) ;
+	}
+	return vpredx;
+}
 //--------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------
-
+double Boid::vpredy(void)
+{
+	double vpredy;
+	if(distance(this->predator , this->prey()) > Rp)
+	{
+		vpredy=(((double) rand())/RAND_MAX);
+	}
+	else
+	{
+		vpredy = vpy * (-this->v4y(this->preyindex())) ;
+	}
+	return vpredy;
+}
 // ===========================================================================
 //                                Protected Methods
 // ===========================================================================
@@ -417,6 +498,21 @@ double Boid::_c() const
   return c;
 }
 //--------------------------------------------------------------------------
+double Boid::_Rp() const
+{
+  return Rp;
+}
+//--------------------------------------------------------------------------
+double Boid::_vpx() const
+{
+  return vpx;
+}
+//--------------------------------------------------------------------------
+double Boid::_vpy() const
+{
+  return vpy;
+}
+//--------------------------------------------------------------------------
 Bird* Boid::_population() 
 {
   return population;
@@ -425,6 +521,11 @@ Bird* Boid::_population()
 Obstacle* Boid::_obstacles() 
 {
   return obstacles;
+}
+//--------------------------------------------------------------------------
+Bird Boid::_predator() 
+{
+  return predator;
 }
 //--------------------------------------------------------------------------
 double Boid::_gam1() const
@@ -440,4 +541,9 @@ double Boid::_gam2() const
 double Boid::_gam3() const
 {
 	return gam3;
+}
+//--------------------------------------------------------------------------
+double Boid::_gam4() const
+{
+	return gam4;
 }
