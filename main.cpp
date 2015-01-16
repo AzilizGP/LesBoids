@@ -55,17 +55,27 @@ int main()
 //  test predator
 	printf("predator : x=%f & y=%f\n",popu._predator()._x(), popu._predator()._y());
 	printf("predator : vx=%f & vy=%f\n", popu.vpredx(), popu.vpredy());
-//	printf("predator : vpx=%f & vpy=%f\n",popu._vpx(),popu._vpy());
+	printf("predator's speed by default when hunting : vpx=%f & vpy=%f\n",popu._vpx(),popu._vpy());
+//	test predator - obstacles
+	printf("obstacles next to predator : %d\n",popu._Opred());
+	printf("obstacles influence on the predator's speed : vobsx=%f & vobsy=%f\n", popu.vpredox(), popu.vpredoy());
 // test prey
-	printf("prey : x=%f & y=%f\n", popu.preyx(), popu.preyy() );
+	printf("closest prey to predator : x=%f & y=%f\n", popu.preyx(), popu.preyy() );
+//	test prey index
+	printf("closest prey index = %d\n",popu.preyindex());
+//	test coordinates evolution
+	printf("bird coordinates at t time : x=%f & y=%f\n",popu[i]._x(), popu[i]._y());
+	printf("bird coordinates at t+dt : x=%f & y=%f\n",popu.xevol(i), popu.yevol(i));
+	printf("predator coordinates at t time : x=%f & y=%f\n",popu._predator()._x(), popu._predator()._y());
+	printf("predator coordinates at t+dt : x=%f & y=%f\n",popu.xpredevol(), popu.ypredevol());	
 
 
 	
 
 
 
-	int W=800;
-	int H=800;
+	int W=1000;
+	int H=1000;
     bwindow win(W,H);
     printf("%d\n",win.init());
     win.map();
@@ -74,13 +84,14 @@ int main()
    	int k;
    	double* x = new double[population.N];
    	double* y = new double[population.N];
-   	double* vx = new double[population.N];
-   	double* vy = new double[population.N];
+   	double predx = population._predator()._x();
+	double predy = population._predator()._y();
 	for(k=0;k<population.N;k++)
 	{
 		x[k] = population[k]._x();
 		y[k] = population[k]._y();
 	}
+	
     for(;;)
     {
 	    int ev = win.parse_event();
@@ -97,7 +108,7 @@ int main()
 				case BCONFIGURE:
 				printf("configure\n"); break;
 			}
-		win.draw_point(100,100,0xFF00);
+//		win.draw_point(100,100,0xFF00);
 //		win.draw_text(10,10,0x0,"Hello World",strlen("Hello World"));
 //		win.draw_line(100,100,200,200,0xFF0000);          // queue de l'oiseau
 //		win.draw_square(200,200,220,220,0xFF00);          // tête de l'oiseau
@@ -112,31 +123,61 @@ int main()
 // dessin de la population
 			for(k=0;k<population.N;k++)
 			{ 
-				win.draw_square(x[k], y[k], x[k] + 5, y[k] + 5, 0xFF00);
+				win.draw_square(x[k]-1, y[k]-1, x[k] + 1, y[k] + 1, 0xFF00);
+				
 				win.draw_line(x[k], y[k], x[k]-population.vx(k), y[k]-population.vy(k), 0xFF0000); 
-
-				x[k] = x[k] + population[k]._dt() * population.vx(k);
-				y[k] = y[k] + population[k]._dt() * population.vy(k);
+				
+				x[k] += population[k].dt * population.vx(k);
+				y[k] += population[k].dt * population.vy(k);
 			}
 // dessin du prédateur
-/*		win.draw_fsquare(population._predator()._x() - 5, population._predator()._y() - 5, population._predator()._x() + 5, population._predator()._y() + 5, 0xFF0000) ;
-		population._predator()._x() = population._predator()._x() + population._predator().dt * population.vpredx();
-		population._predator()._y() = population._predator()._y() + population._predator().dt * population.vpredy();
-*/
+		win.draw_fsquare(predx - 2, predy - 2, predx + 2, predy + 2, 0xFF0000) ;
+		predx += population.predator.dt * population.vpredx();
+		predy += population.predator.dt * population.vpredy();
+//		usleep(1000);
+//		win.draw_fsquare(0,0,W,H,0xFEFEFE);
+		usleep(1000);
     }
 
     return 0;
 }
+
+// BORDURE POUR OISEAUX
 /*
-int wind(Boid pop, int k)
-{
-	if(pop[k]._x() < 50 || pop[k]._x() > 800 - 50)
-	{
-		
-	}
-	if(pop[k]._y() < 50 || pop[k]._y() > 800 - 50)
-	{
-		
-	}
-}
+ 				if(x[k]<50 || x[k]>W-50)
+				{
+				//	x[k] -= population[k].dt * population.vx(k);	
+				}
+				else
+				{
+					x[k] += population[k].dt * population.vx(k);
+				}
+				if(y[k]<50 || y[k]>H-50)
+				{
+				//	y[k] -= population[k].dt * population.vy(k);
+				}
+				else
+				{
+					y[k] += population[k].dt * population.vy(k);
+				}
+*/
+
+// BORDURE POUR PREDATEUR
+/*
+		if(predx<50 || predx>W-50)
+		{
+		//	predx -= population.predator.dt * population.vpredx();
+		}
+		else
+		{
+			predx += population.predator.dt * population.vpredx();
+		}
+		if(predy<50 || predy>H-50)
+		{
+		//	predy -= population.predator.dt * population.vpredy();
+		}
+		else
+		{
+			predy += population.predator.dt * population.vpredy();
+		}
 */

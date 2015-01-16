@@ -38,8 +38,8 @@
 
 Obstacle::Obstacle(void)
 {
-	x = (((double) rand())/RAND_MAX)*640;         //gives  a random number between 0 and 100
-	y = (((double) rand())/RAND_MAX)*480;
+	x = (((double) rand())/RAND_MAX)*800;         //gives  a random number between 0 and 100
+	y = (((double) rand())/RAND_MAX)*800;
 }
 
 Obstacle::Obstacle( const Obstacle& obstacle )
