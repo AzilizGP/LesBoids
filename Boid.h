@@ -87,6 +87,8 @@ class Boid
     // =======================================================================
     //                              Public Methods
     // =======================================================================
+   	double _dt(void) const;
+
   	int _K(int i);                  //calculates the number of birds in the perception radius of the ith bird
 	int _Kprim(int i);              //calculates the number of birds at the contact distance s, or closest, of the ith bird
   	int _O(int i);                  //calculates the number of obstacles at the contact distance s, or closest, of the ith bird
@@ -96,11 +98,13 @@ class Boid
 	double v2x(int i);
 	double v3x(int i);
 	double v4x(int i);
+	double windx(int i);
 	double vx(int i);
 	double v1y(int i);
 	double v2y(int i);
 	double v3y(int i);
 	double v4y(int i);
+	double windy(int i);
 	double vy(int i);
 	double xevol(int i);            // return the ith bird's x coordinate at t+dt time
 	double yevol(int i);            // return the ith bird's y coordinate at t+dt time
@@ -120,10 +124,18 @@ class Boid
     // =======================================================================
     //                             Public Attributes
     // =======================================================================
+
+  	static const double dt;                           // lapse of time
     
+    static const int W;					// window's weight
+	static const int H;					// window's height
+
 	static const int N; 			// number of birds in the whole environment
 	static const int P;             // number of obstacles
     Bird predator;									// predator
+
+    static const double vpx;
+    static const double vpy;
 
 
 
@@ -136,8 +148,6 @@ class Boid
     static const double c;                            // contact distance
     static const double Rp; 						// predator radius
     static const double m;							// prey catching distance for the predator
-    static const double vpx;
-    static const double vpy;
     Bird* population;                           // table of birds
     Obstacle* obstacles; 							// table of obstacles
  

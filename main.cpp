@@ -16,15 +16,17 @@ int main()
 {
 	srand(time(NULL));
 
-	int i=2;
+	int i=5;
+	int j=0;
+/*
 //	test bird
 	Bird piaf;
 	printf("piaf : x=%f & y=%f\n",piaf._x(),piaf._y());
 	printf("dt = %f\n",piaf.dt);
-	
+*/	
 //	test boid
 	Boid popu;
-	int m=popu.N;
+/*	int m=popu.N;
 	Bird* piti = new Bird[m]; 
 	Bird* poutou = popu._population();
 	Bird labous;
@@ -40,19 +42,31 @@ int main()
 //	test obstacles
 	Obstacle* obs = popu._obstacles();
 	printf("obstacle : x=%f & y=%f\n",obs[1]._x(),obs[1]._y());
-	
-
+*/
+for(i=0;i<5;i++)
+{
 //  test v1
 	printf("oiseau n°%d : v1x=%lg & v1y=%lg\n",i,popu.v1x(i),popu.v1y(i));
 //  test v2
 	printf("oiseau n°%d : v2x=%lg & v2y=%lg\n",i,popu.v2x(i),popu.v2y(i));
 //  test v3
 	printf("oiseau n°%d : v3x=%lg & v3y=%lg\n",i,popu.v3x(i),popu.v3y(i));
+	for(j=0;j<popu.P;j++)
+	{
+		printf("distance bird n°%d to obstacle n°%d = %g\n",i,j,sqrt( (popu._obstacles()[j]._x()-popu[i]._x())*(popu._obstacles()[j]._x()-popu[i]._x()) + (popu._obstacles()[j]._y()-popu[i]._y())*(popu._obstacles()[j]._y()-popu[i]._y()) ) );
+	}
 // 	test v4
 	printf("oiseau n°%d : v4x=%lg & v4y=%lg\n",i,popu.v4x(i),popu.v4y(i));
 //	test v
 	printf("oiseau n°%d : vx=%lg & vy=%lg\n",i,popu.vx(i),popu.vy(i));
+//	test coordinates evolution
+	printf("bird n°%d coordinates at t time : x=%f & y=%f\n",i, popu[i]._x(), popu[i]._y());
+	printf("bird n°%d coordinates at t+dt : x=%f & y=%f\n\n",i, popu.xevol(i), popu.yevol(i));
+}
+/*
 //  test predator
+	printf("predator coordinates at t time : x=%f & y=%f\n",popu._predator()._x(), popu._predator()._y());
+	printf("predator coordinates at t+dt : x=%f & y=%f\n",popu.xpredevol(), popu.ypredevol());	
 	printf("predator : x=%f & y=%f\n",popu._predator()._x(), popu._predator()._y());
 	printf("predator : vx=%f & vy=%f\n", popu.vpredx(), popu.vpredy());
 	printf("predator's speed by default when hunting : vpx=%f & vpy=%f\n",popu._vpx(),popu._vpy());
@@ -63,33 +77,34 @@ int main()
 	printf("closest prey to predator : x=%f & y=%f\n", popu.preyx(), popu.preyy() );
 //	test prey index
 	printf("closest prey index = %d\n",popu.preyindex());
-//	test coordinates evolution
-	printf("bird coordinates at t time : x=%f & y=%f\n",popu[i]._x(), popu[i]._y());
-	printf("bird coordinates at t+dt : x=%f & y=%f\n",popu.xevol(i), popu.yevol(i));
-	printf("predator coordinates at t time : x=%f & y=%f\n",popu._predator()._x(), popu._predator()._y());
-	printf("predator coordinates at t+dt : x=%f & y=%f\n",popu.xpredevol(), popu.ypredevol());	
+*/
 
 
+
+
+	Boid population;
 	
+	int W = population.W;
+	int H = population.H;
 
-
-
-	int W=1000;
-	int H=1000;
-    bwindow win(W,H);
+	bwindow win(W,H);
     printf("%d\n",win.init());
     win.map();
-		
-	Boid population;
+	
    	int k;
    	double* x = new double[population.N];
    	double* y = new double[population.N];
+   	double* vx = new double[population.N];
+   	double* vy = new double[population.N];
    	double predx = population._predator()._x();
 	double predy = population._predator()._y();
 	for(k=0;k<population.N;k++)
 	{
 		x[k] = population[k]._x();
 		y[k] = population[k]._y();
+		vx[k] = population.vx(k);
+		vy[k] = population.vy(k);
+				
 	}
 	
     for(;;)
@@ -117,25 +132,29 @@ int main()
 // dessin des obstacles
 			for(k=0;k<population.P;k++)
 			{
-				win.draw_fsquare(population._obstacles()[k]._x() - 5, population._obstacles()[k]._y() - 5, 
-				population._obstacles()[k]._x() + 5, population._obstacles()[k]._y() + 5, 0xFF0);
+				win.draw_fsquare(population._obstacles()[k]._x() - 5, population._obstacles()[k]._y() - 5, population._obstacles()[k]._x() + 5, population._obstacles()[k]._y() + 5, 0xFF0);
 			}
+// nettoie l'écran pour les birds
+			for(k=0;k<population.N;k++)
+			{ 
+				win.draw_fsquare(x[k]-3, y[k]-3, x[k] + 3, y[k] + 3,0xFEFEFE);
+			}	
 // dessin de la population
 			for(k=0;k<population.N;k++)
 			{ 
-				win.draw_square(x[k]-1, y[k]-1, x[k] + 1, y[k] + 1, 0xFF00);
-				
-				win.draw_line(x[k], y[k], x[k]-population.vx(k), y[k]-population.vy(k), 0xFF0000); 
-				
-				x[k] += population[k].dt * population.vx(k);
-				y[k] += population[k].dt * population.vy(k);
+				x[k] += population.xevol(k);
+				y[k] += population.yevol(k);
+				win.draw_square(x[k]-2, y[k]-2, x[k] + 2, y[k] + 2, 0xFF00);
+
 			}
+
+// nettoie l'écran pour le prédateur
+		win.draw_fsquare(predx - 3, predy - 3, predx + 3, predy + 3, 0xFEFEFE) ;
 // dessin du prédateur
-		win.draw_fsquare(predx - 2, predy - 2, predx + 2, predy + 2, 0xFF0000) ;
 		predx += population.predator.dt * population.vpredx();
 		predy += population.predator.dt * population.vpredy();
-//		usleep(1000);
-//		win.draw_fsquare(0,0,W,H,0xFEFEFE);
+		win.draw_fsquare(predx - 3, predy - 3, predx + 3, predy + 3, 0xFF0000) ;
+
 		usleep(1000);
     }
 

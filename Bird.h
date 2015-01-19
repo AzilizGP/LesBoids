@@ -49,7 +49,6 @@ class Bird
     double _y(void);
 	double _vx(void);
 	double _vy(void);
-	double _dt(void) const;
 
     // =======================================================================
     //                            Accessors: setters
@@ -62,13 +61,18 @@ class Bird
     // =======================================================================
     //                              Public Methods
     // =======================================================================
+   	double _dt(void) const;
 
     // =======================================================================
     //                             Public Attributes
     // =======================================================================
-	static const double dt;                           // lapse of time
+  	static const double dt;                           // lapse of time
+
     double x;
     double y;
+  
+    double vx;
+    double vy;
 
 
 
@@ -77,8 +81,6 @@ class Bird
     // =======================================================================
     //                             Protected Attributes
     // =======================================================================
-    double vx;
-    double vy;
 
 };
 

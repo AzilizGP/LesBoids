@@ -1,11 +1,7 @@
 //****************************************************************************
-// 
-// 
-// partie graphique ralentir les oiseau -> Bird.h ralentir les vitesses
-// vp
 // vent
 // verifier les vitesses d'obstacles
-// ? déclarer dans le bird.h la taille de la fenêtre WxH
+// supprimer l'oiseau manger, arrêter le prédateur quand il mange
 //****************************************************************************
 
 
@@ -39,19 +35,23 @@
 //                         Definition of static attributes
 // ===========================================================================
 
- const int Boid::N=10;					// number of birds
- const int Boid::P=3;					// number of obstacles
+
+ const int Boid::W=800;					// window's weight
+ const int Boid::H=800;					// window's height 
+
+ const int Boid::N=100;					// number of birds
+ const int Boid::P=5;					// number of obstacles
  const double Boid::r=100;				// perception radius
- const double Boid::c=100;				// contact distance
+ const double Boid::c=10;				// contact distance
  const double Boid::Rp=100;				// predator radius
  const double Boid::m=20;				// prey catching distance for the predator
  const double Boid::vpx=10;
  const double Boid::vpy=10;
 
- const double Boid::gam1=0.1;
- const double Boid::gam2=5;
- const double Boid::gam3=5;
- const double Boid::gam4=2;
+ const double Boid::gam1=0.5;
+ const double Boid::gam2=0.2;
+ const double Boid::gam3=1;
+ const double Boid::gam4=5;
 
 // ===========================================================================
 //                                  Constructors
@@ -68,6 +68,7 @@ Boid::Boid( const Boid& boid )
 	printf("ERREUR\n");
 	exit(1);
 }
+
 
 // ===========================================================================
 //                                  Destructor
@@ -140,7 +141,7 @@ int Boid::_K(int i)                     //calculates the number of birds in the 
 	}
 	int j;
 	int p=0;
-	for (j=0;j<N;j++)
+	for (j=0;j<this->N;j++)
 	{
 		Bird b1, b2;
 		b1=this->population[i];
@@ -163,7 +164,7 @@ int Boid::_Kprim(int i)                     //calculates the number of birds at 
 	}
 	int j;
 	int p=0;
-	for (j=0;j<(N-1);j++)
+	for (j=0;j<this->N;j++)
 	{
 		Bird b1, b2;
 		b1=this->population[i];
@@ -181,16 +182,15 @@ int Boid::_O(int i)                     //calculates the number of obstacles at 
 {
 	if(i<0||i>N-1)
 	{
-	printf("Warning : your index number must be between 0 and <%d to obtain the O you wanted\n",(P-1));
+	printf("Warning : your index number must be between 0 and <%d to obtain the number of obstacles\n",(P-1));
     exit(EXIT_FAILURE);
 	}
 	int j;
 	int p=0;
 	Bird b = this->population[i];       // b is the bird concerned
-	for (j=0;j<P;j++)
+	for (j=0;j<this->P;j++)
 	{
-		Obstacle obs;
-		obs = this->obstacles[j];
+		Obstacle obs = this->obstacles[j];
 		if( distance(b,obs) < c )
 		{
 			p=p+1;
@@ -204,7 +204,7 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 {
 	int j;
 	int p=0;
-	for (j=0;j<(N-1);j++)
+	for (j=0;j<this->P;j++)
 	{
 		Obstacle obs = this->obstacles[j];
 		if( distance(this->predator,obs) < c )
@@ -225,7 +225,7 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	{
 		double vxi=this->population[i]._vx();
 		double vxj;
-		for (j=0 ; j<N ; j++)
+		for (j=0 ; j<this->N ; j++)
 			{
 				if(j!=i && distance(this->population[i],this->population[j])<r)
 				{
@@ -248,7 +248,7 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	{
 		double v1yi= this->population[i]._vy();
 		double v1yj;
-		for (j=0 ; j<N ; j++)
+		for (j=0 ; j<this->N ; j++)
 		{
 			if(j!=i && distance(this->population[i],this->population[j])<r)
 			{
@@ -271,9 +271,9 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	{
 		double xi= this->population[i]._x();
 		double xj;
-		for (j=0 ; j<N ; j++)
+		for (j=0 ; j<this->N ; j++)
 		{
-			if(j!=i && distance(this->population[i],this->population[j])<r)
+			if((j!=i) && (distance(this->population[i],this->population[j])<r))
 			{
 				xj= this->population[j]._x();
 				v2x += xj - xi;
@@ -294,15 +294,15 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	{
 		double yi= this->population[i]._y();
 		double yj;
-		for (j=0 ; j<N ; j++)
+		for (j=0 ; j<this->N ; j++)
 		{
-			if(j!=i && distance(this->population[i],this->population[j])<r)
+			if((j!=i) && (distance(this->population[i],this->population[j])<r))
 			{
 				yj= this->population[j]._y();
 				v2y += yj - yi;
 			}
 		}
-			v2y = v2y / K;
+		v2y = v2y / K;
 	}
 	return v2y;
 }
@@ -319,7 +319,7 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	{
 		double xi= this->population[i]._x();
 		double xj;
-		for (j=0 ; j<N ; j++)
+		for (j=0 ; j<this->N ; j++)
 		{
 			if(j!=i && distance(this->population[i],this->population[j])<c)
 			{
@@ -327,16 +327,17 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 				vbx += xj - xi;
 			}
 		}
-			vbx = vbx / Kprim;
+		vbx = vbx / Kprim;
 	}
 	
 	int O=this->_O(i);
 	double vox=0;
 	if(O!=0)
 	{
+
 		double xi= this->population[i]._x();
 		double xj;
-		for (j=0 ; j<P ; j++)
+		for (j=0 ; j<this->P ; j++)
 		{
 			if(j!=i && distance(this->population[i],this->obstacles[j])<c)
 			{
@@ -344,7 +345,7 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 				vox += xj - xi;
 			}
 		}
-			vox = vox / O;
+		vox = vox / O;
 	}
 	v3x = -vox - vbx;
 	return v3x;
@@ -361,7 +362,7 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	{
 		double yi= this->population[i]._y();
 		double yj;
-		for (j=0 ; j<N ; j++)
+		for (j=0 ; j<this->N ; j++)
 		{
 			if(j!=i && distance(this->population[i],this->population[j])<c)
 			{
@@ -376,11 +377,11 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	double voy=0;
 	if(O!=0)
 	{
-		double yi= this->obstacles[i]._y();
+		double yi= this->population[i]._y();
 		double yj;
-		for (j=0 ; j<P ; j++)
+		for (j=0 ; j<this->P ; j++)
 		{
-			if(j!=i && distance(this->obstacles[i],this->obstacles[j])<c)
+			if(j!=i && distance(this->population[i],this->obstacles[j])<c)
 			{
 				yj= this->obstacles[j]._y();
 				voy += yj - yi;
@@ -451,8 +452,8 @@ double Boid::v4y(int i)                    //v4y
 	double yprey = this->population[i]._y();
 	return -(ypred - yprey) / distance(this->predator , this->population[i]);
 }
-//--------------------------------------------------------------------------
 
+//--------------------------------------------------------------------------
 double Boid::vx(int i)                        //vx
 {
 	return this->population[i]._vx() + this->population[i]._dt() * (gam1*this->v1x(i) + gam2*this->v2x(i) + gam3*this->v3x(i) + gam4*this->v4x(i));
@@ -472,7 +473,7 @@ double Boid::vy(int i)                        //vy
 	if(O!=0)
 	{
 		double xj;
-		for (j=0 ; j<P ; j++)
+		for (j=0 ; j<this->P ; j++)
 		{
 			if(distance(this->predator,this->obstacles[j])<c)
 			{
@@ -492,13 +493,11 @@ double Boid::vy(int i)                        //vy
 	double voy=0;
 	if(O!=0)
 	{
-		double yj;
-		for (j=0 ; j<P ; j++)
+		for (j=0 ; j<this->P ; j++)
 		{
 			if(distance(this->predator,this->obstacles[j])<c)
 			{
-				yj= this->obstacles[j]._y();
-				voy += yj - this->predator._y();
+				voy += this->obstacles[j]._y() - this->predator._y();
 			}
 		}
 			voy = voy / O;
@@ -542,21 +541,22 @@ double Boid::vpredy(void)
 	}
 	return vpredy - this->vpredoy();
 }
+
 //--------------------------------------------------------------------------
-double Boid::xevol(int i)
+double Boid::xevol(int i)              // x(t+dt)
 {
-	return this->population[i]._x() + this->population[i].dt * this->vx(i);
+	return (this->population[i].dt * this->vx(i));
 }
 
 //--------------------------------------------------------------------------
-double Boid::yevol(int i)
+double Boid::yevol(int i)             // y(t+dt)
 {
-	return this->population[i]._y() + this->population[i].dt * this->vy(i);
+	return (this->population[i].dt * this->vy(i));
 }
 //--------------------------------------------------------------------------
 double Boid::xpredevol(void)
 {
-	return this->predator._y() + this->predator.dt * this->vpredx();
+	return this->predator._x() + this->predator.dt * this->vpredx();
 }
 //--------------------------------------------------------------------------
 double Boid::ypredevol(void)
