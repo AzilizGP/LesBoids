@@ -89,25 +89,29 @@ class Boid
     // =======================================================================
    	double _dt(void) const;
 
+	double distance(Bird b1, Bird b2);     // calculates the distance between 2 birds
+	double distance(Bird b, Obstacle o);   // calculates the distance between a bird and an obstacle
   	int _K(int i);                  //calculates the number of birds in the perception radius of the ith bird
 	int _Kprim(int i);              //calculates the number of birds at the contact distance s, or closest, of the ith bird
   	int _O(int i);                  //calculates the number of obstacles at the contact distance s, or closest, of the ith bird
   	int _Opred(void); 				//calculates the number of obstacles at the contact distance s, or closest, of the ith bird
+  	
 // Birds' speed	
 	double v1x(int i);
 	double v2x(int i);
 	double v3x(int i);
 	double v4x(int i);
-	double windx(int i);
 	double vx(int i);
+	
 	double v1y(int i);
 	double v2y(int i);
 	double v3y(int i);
 	double v4y(int i);
-	double windy(int i);
 	double vy(int i);
+	
 	double xevol(int i);            // return the ith bird's x coordinate at t+dt time
 	double yevol(int i);            // return the ith bird's y coordinate at t+dt time
+	
 // predator's speed
 	Bird prey(void);         		// return the closest prey to the predator
 	int preyindex(void);     		// return the closest prey's index
@@ -117,6 +121,7 @@ class Boid
 	double vpredoy(void);
 	double vpredx(void);
 	double vpredy(void);
+	
 	double xpredevol(void);			// return the predator's x coordinate at t+dt time
 	double ypredevol(void);			// return the predator's y coordinate at t+dt time
 
@@ -132,7 +137,9 @@ class Boid
 
 	static const int N; 			// number of birds in the whole environment
 	static const int P;             // number of obstacles
-    Bird predator;									// predator
+    Bird predator;					// predator
+    Bird* population;               // table of birds
+
 
     static const double vpx;
     static const double vpy;
@@ -148,7 +155,6 @@ class Boid
     static const double c;                            // contact distance
     static const double Rp; 						// predator radius
     static const double m;							// prey catching distance for the predator
-    Bird* population;                           // table of birds
     Obstacle* obstacles; 							// table of obstacles
  
  // parameters gamma1, gamma2 and gamma3  

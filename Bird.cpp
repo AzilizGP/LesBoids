@@ -32,7 +32,7 @@
 //                         Definition of static attributes
 // ===========================================================================
 
- const double Bird::dt=0.1;
+ const double Bird::dt=0.2;
 
 // ===========================================================================
 //                                  Constructors
@@ -42,8 +42,8 @@ Bird::Bird(void)
 {
 	x = (((double) rand())/RAND_MAX)*800;         //gives  a random number between 0 and 100
 	y = (((double) rand())/RAND_MAX)*800;
-	vx = (((double) rand())/RAND_MAX);
-	vy = (((double) rand())/RAND_MAX);
+	vx = (((double) rand())/RAND_MAX)*2;
+	vy = (((double) rand())/RAND_MAX)*2;
 }
 
 Bird::Bird( const Bird& bird )

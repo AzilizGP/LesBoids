@@ -23,10 +23,10 @@ int main()
 	Bird piaf;
 	printf("piaf : x=%f & y=%f\n",piaf._x(),piaf._y());
 	printf("dt = %f\n",piaf.dt);
-*/	
+
 //	test boid
 	Boid popu;
-/*	int m=popu.N;
+int m=popu.N;
 	Bird* piti = new Bird[m]; 
 	Bird* poutou = popu._population();
 	Bird labous;
@@ -42,7 +42,7 @@ int main()
 //	test obstacles
 	Obstacle* obs = popu._obstacles();
 	printf("obstacle : x=%f & y=%f\n",obs[1]._x(),obs[1]._y());
-*/
+
 for(i=0;i<5;i++)
 {
 //  test v1
@@ -63,7 +63,7 @@ for(i=0;i<5;i++)
 	printf("bird n°%d coordinates at t time : x=%f & y=%f\n",i, popu[i]._x(), popu[i]._y());
 	printf("bird n°%d coordinates at t+dt : x=%f & y=%f\n\n",i, popu.xevol(i), popu.yevol(i));
 }
-/*
+
 //  test predator
 	printf("predator coordinates at t time : x=%f & y=%f\n",popu._predator()._x(), popu._predator()._y());
 	printf("predator coordinates at t+dt : x=%f & y=%f\n",popu.xpredevol(), popu.ypredevol());	
@@ -82,31 +82,38 @@ for(i=0;i<5;i++)
 
 
 
-	Boid population;
-	
-	int W = population.W;
-	int H = population.H;
+	Boid pop;
+
+for(i=0;i<5;i++)
+{
+//  test v1
+	printf("oiseau n°%d : v1x=%lg & v1y=%lg\n",i,pop.v1x(i),pop.v1y(i));
+//  test v2
+	printf("oiseau n°%d : v2x=%lg & v2y=%lg\n",i,pop.v2x(i),pop.v2y(i));
+//  test v3
+	printf("oiseau n°%d : v3x=%lg & v3y=%lg\n",i,pop.v3x(i),pop.v3y(i));
+	for(j=0;j<pop.P;j++)
+	{
+		printf("distance bird n°%d to obstacle n°%d = %g\n",i,j,sqrt( (pop._obstacles()[j]._x()-pop[i]._x())*(pop._obstacles()[j]._x()-pop[i]._x()) + (pop._obstacles()[j]._y()-pop[i]._y())*(pop._obstacles()[j]._y()-pop[i]._y()) ) );
+	}
+// 	test v4
+	printf("oiseau n°%d : v4x=%lg & v4y=%lg\n",i,pop.v4x(i),pop.v4y(i));
+//	test v
+	printf("oiseau n°%d : vx=%lg & vy=%lg\n",i,pop.vx(i),pop.vy(i));
+//	test coordinates evolution
+	printf("bird n°%d coordinates at t time : x=%f & y=%f\n",i, pop[i]._x(), pop[i]._y());
+	printf("bird n°%d coordinates at t+dt : x=%f & y=%f\n\n",i, pop.xevol(i), pop.yevol(i));
+}
+
+	int W = pop.W;
+	int H = pop.H;
 
 	bwindow win(W,H);
     printf("%d\n",win.init());
     win.map();
 	
    	int k;
-   	double* x = new double[population.N];
-   	double* y = new double[population.N];
-   	double* vx = new double[population.N];
-   	double* vy = new double[population.N];
-   	double predx = population._predator()._x();
-	double predy = population._predator()._y();
-	for(k=0;k<population.N;k++)
-	{
-		x[k] = population[k]._x();
-		y[k] = population[k]._y();
-		vx[k] = population.vx(k);
-		vy[k] = population.vy(k);
-				
-	}
-	
+
     for(;;)
     {
 	    int ev = win.parse_event();
@@ -123,37 +130,51 @@ for(i=0;i<5;i++)
 				case BCONFIGURE:
 				printf("configure\n"); break;
 			}
-//		win.draw_point(100,100,0xFF00);
-//		win.draw_text(10,10,0x0,"Hello World",strlen("Hello World"));
-//		win.draw_line(100,100,200,200,0xFF0000);          // queue de l'oiseau
-//		win.draw_square(200,200,220,220,0xFF00);          // tête de l'oiseau
-//		win.draw_fsquare(400,400,440,440,0xFF00);          // obstacle
 
 // dessin des obstacles
-			for(k=0;k<population.P;k++)
+			for(k=0;k<pop.P;k++)
 			{
-				win.draw_fsquare(population._obstacles()[k]._x() - 5, population._obstacles()[k]._y() - 5, population._obstacles()[k]._x() + 5, population._obstacles()[k]._y() + 5, 0xFF0);
+				win.draw_fsquare(pop._obstacles()[k]._x() - 5, pop._obstacles()[k]._y() - 5, pop._obstacles()[k]._x() + 5, pop._obstacles()[k]._y() + 5, 0xFF0);
 			}
 // nettoie l'écran pour les birds
-			for(k=0;k<population.N;k++)
+			for(k=0;k<pop.N;k++)
 			{ 
-				win.draw_fsquare(x[k]-3, y[k]-3, x[k] + 3, y[k] + 3,0xFEFEFE);
+				win.draw_fsquare(pop[k].x - 3, pop[k].y - 3, pop[k].x + 3, pop[k].y + 3,0xFEFEFE);
 			}	
 // dessin de la population
-			for(k=0;k<population.N;k++)
+			for(k=0;k<pop.N;k++)
 			{ 
-				x[k] += population.xevol(k);
-				y[k] += population.yevol(k);
-				win.draw_square(x[k]-2, y[k]-2, x[k] + 2, y[k] + 2, 0xFF00);
-
+				pop.population[k].x += pop.xevol(k);
+				pop.population[k].y += pop.yevol(k);
+				win.draw_square(pop.population[k].x - 2, pop.population[k].y - 2, pop.population[k].x + 2, pop.population[k].y + 2, 0xFF00);
+			}
+// vent
+			for(k=0;k<pop.N;k++)
+			{ 
+				if(pop.population[k].x < 2 )
+				{
+				pop.population[k].x -= pop.xevol(k);
+				}
+				if( pop.population[k].x > pop.W -2)
+				{
+				pop.population[k].x -= pop.xevol(k);
+				}
+				if(pop.population[k].y < 2 )
+				{
+				pop.population[k].y -= pop.yevol(k);
+				}
+				if(pop.population[k].y > pop.H - 2)
+				{
+				pop.population[k].y -= pop.yevol(k);
+				}
 			}
 
 // nettoie l'écran pour le prédateur
-		win.draw_fsquare(predx - 3, predy - 3, predx + 3, predy + 3, 0xFEFEFE) ;
+		win.draw_fsquare(pop.predator.x - 3, pop.predator.y - 3, pop.predator.x + 3, pop.predator.y + 3, 0xFEFEFE) ;
 // dessin du prédateur
-		predx += population.predator.dt * population.vpredx();
-		predy += population.predator.dt * population.vpredy();
-		win.draw_fsquare(predx - 3, predy - 3, predx + 3, predy + 3, 0xFF0000) ;
+		pop.predator.x += pop.predator.dt * pop.vpredx();
+		pop.predator.y += pop.predator.dt * pop.vpredy();
+		win.draw_fsquare(pop.predator.x - 3, pop.predator.y - 3, pop.predator.x + 3, pop.predator.y + 3, 0xFF0000) ;
 
 		usleep(1000);
     }
