@@ -1,8 +1,11 @@
 //****************************************************************************
 // vent
-// 
+// setters
+// redéfinir les xevol, yevol, xpredevol ypred evol (à cause des setters)
 // supprimer l'oiseau mangé -> coordonnées négatives
 // arrêter le prédateur quand il mange
+// usleep ne fonctionne pas
+// la méthode waiting arrête tous les oiseaux
 //****************************************************************************
 
 
@@ -11,46 +14,45 @@
 // ===========================================================================
 //                                   Libraries
 // ===========================================================================
-
-
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
+#include "unistd.h"
 
 // ===========================================================================
 //                                 Project Files
 // ===========================================================================
-#include <cstdio>
-#include <cstdlib>
+
 #include "Boid.h"
 #include "Bird.h"
 #include "Obstacle.h"
-#include <cmath>
-
 
 
 //############################################################################
 //                                                                           #
 //                              Class Bird                                   #
 //                                                                           #
-//############################################################################
+//############################################################################ 
 
 // ===========================================================================
 //                         Definition of static attributes
 // ===========================================================================
 
-
  const int Boid::W=800;					// window's weight
  const int Boid::H=800;					// window's height 
 
- const int Boid::N=50;					// number of birds
- const int Boid::P=5;					// number of obstacles
- const double Boid::r=50;				// perception radius
- const double Boid::c=20;				// contact distance
- const double Boid::Rp=100;				// predator radius
+ const int Boid::N=200;					// number of birds
+ const int Boid::P=20;					// number of obstacles
+ const double Boid::r=30;				// perception radius
+ const double Boid::c=10;				// contact distance
+ const double Boid::Rp=80;				// predator radius
  const double Boid::m=10;				// prey catching distance for the predator
  const double Boid::vpx=5;
  const double Boid::vpy=5;
 
- const double Boid::gam1=1;
- const double Boid::gam2=0.5;
+ const double Boid::gam1=2;
+ const double Boid::gam2=2;
  const double Boid::gam3=2;
  const double Boid::gam4=5;
 
@@ -66,10 +68,10 @@ Boid::Boid(void)                      // create a population of N birds  in a ta
 
 Boid::Boid( const Boid& boid )
 {
-	printf("ERREUR\n");
-	exit(1);
+	population = new Bird[boid.N];
+	predator = boid.predator;
+	obstacles = new Obstacle[boid.P];
 }
-
 
 // ===========================================================================
 //                                  Destructor
@@ -77,11 +79,11 @@ Boid::Boid( const Boid& boid )
 Boid::~Boid(void)
 {
 	delete [] population;
+	delete [] obstacles;
 }
 // =======================================================================
 //                                Operators
 // =======================================================================
-
 
 Bird Boid::operator[](int p)              // return the pth bird of the population
 {
@@ -93,12 +95,15 @@ Bird Boid::operator[](int p)              // return the pth bird of the populati
 	return this->population[p];
 }
 
-
-
 // ===========================================================================
 //                                 Public Methods
 // ===========================================================================
-
+void Boid::waiting(float temps)                    // makes the program waiting during i seconds
+   	{
+		clock_t arrivee=clock()+(temps*CLOCKS_PER_SEC);
+		while(clock()<arrivee);
+	}
+//--------------------------------------------------------------------------
 double Boid::distance(Bird bird1, Bird bird2)      // calculates the distance between 2 birds
 {
 	double x1 = bird1._x();
@@ -121,7 +126,6 @@ double Boid::distance(Bird b, Obstacle o)      // calculates the distance betwee
 	return dist;
 }
 //--------------------------------------------------------------------------
-
 int Boid::_K(int i)                     //calculates the number of birds in the perception radius r of the ith bird
 {
 	if(i<0||i>N-1)
@@ -136,7 +140,7 @@ int Boid::_K(int i)                     //calculates the number of birds in the 
 		Bird b1, b2;
 		b1=this->population[i];
 		b2=this->population[j];
-		if( j!=i && (this->distance(b1,b2) < r) && b1.x>0 && b2.x>0 && b1.y>0 && b2.y>0)
+		if( j!=i && (this->distance(b1,b2) < r) && b1._x()>0 && b2._x()>0)
 		{
 			p=p+1;
 		};
@@ -144,7 +148,6 @@ int Boid::_K(int i)                     //calculates the number of birds in the 
 	return p;
 }
 //--------------------------------------------------------------------------
-
 int Boid::_Kprim(int i)                     //calculates the number of birds at the contact distance c, or closest, of the ith bird
 {
 	if(i<0||i>N-1)
@@ -159,7 +162,7 @@ int Boid::_Kprim(int i)                     //calculates the number of birds at 
 		Bird b1, b2;
 		b1=this->population[i];
 		b2=this->population[j];
-		if( j!=i && (this->distance(b1,b2) < c) && b1.x>0 && b2.x>0 && b1.y>0 && b2.y>0)
+		if( j!=i && (this->distance(b1,b2) < c) && b1._x()>0 && b2._x()>0)
 		{
 			p=p+1;
 		};
@@ -167,7 +170,6 @@ int Boid::_Kprim(int i)                     //calculates the number of birds at 
 	return p;
 }
 //--------------------------------------------------------------------------
-
 int Boid::_O(int i)                     //calculates the number of obstacles at the contact distance c, or closest, of the ith bird
 {
 	if(i<0||i>N-1)
@@ -181,7 +183,7 @@ int Boid::_O(int i)                     //calculates the number of obstacles at 
 	for (j=0;j<(this->P);j++)
 	{
 		Obstacle obs = this->obstacles[j];
-		if( this->distance(b,obs) < c && b.x>0 && b.y>0)
+		if( this->distance(b,obs) < c && b._x()>0 && b._y()>0)
 		{
 			p=p+1;
 		};
@@ -189,7 +191,6 @@ int Boid::_O(int i)                     //calculates the number of obstacles at 
 	return p;
 }
 //--------------------------------------------------------------------------
-
 int Boid::_Opred(void)                     //calculates the number of obstacles at the contact distance c, or closest, of the predator
 {
 	int j;
@@ -205,19 +206,18 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	return p;
 }
 //--------------------------------------------------------------------------
-
- double Boid::v1x(int i)            // v1x
+double Boid::v1x(int i)            // v1x
 {
 	int j;
 	int K = (this->_K(i));
 	double v1x = 0;
-	if(K != 0 && this->population[i].x>0)
+	if(K != 0 && this->population[i]._x()>0)
 	{
 		double vxi = this->population[i]._vx();
 		double vxj;
 		for (j=0 ; j<(this->N) ; j++)
 			{
-				if(j!=i && (this->distance(this->population[i],this->population[j])<r) && this->population[j].x>0)
+				if(j!=i && (this->distance(this->population[i],this->population[j])<r) && this->population[j]._x()>0)
 				{
 					vxj = this->population[j]._vx();
 					v1x += vxj - vxi;
@@ -228,19 +228,18 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	return v1x;
 }
 //--------------------------------------------------------------------------
-
- double Boid::v1y(int i)            //v1y
+double Boid::v1y(int i)            //v1y
 {
 	int j;
 	int K=this->_K(i);
 	double v1y=0;
-	if(K!=0 && this->population[i].x>0)
+	if(K!=0 && this->population[i]._x()>0)
 	{
 		double v1yi= this->population[i]._vy();
 		double v1yj;
 		for (j=0 ; j<this->N ; j++)
 		{
-			if(j!=i && this->distance(this->population[i],this->population[j])<r && this->population[j].x>0)
+			if(j!=i && this->distance(this->population[i],this->population[j])<r && this->population[j]._x()>0)
 			{
 				v1yj= this->population[j]._vy();
 				v1y += v1yj - v1yi;
@@ -252,18 +251,18 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 }
 
 //--------------------------------------------------------------------------
- double Boid::v2x(int i)                //v2x
+double Boid::v2x(int i)                //v2x
 {
 	int j;
 	int K=this->_K(i);
 	double v2x=0;
-	if(K!=0  && this->population[i].x>0)
+	if(K!=0  && this->population[i]._x()>0)
 	{
 		double xi= this->population[i]._x();
 		double xj;
 		for (j=0 ; j<this->N ; j++)
 		{
-			if((j!=i) && this->distance(this->population[i],this->population[j])<r && this->population[j].x>0 )
+			if((j!=i) && this->distance(this->population[i],this->population[j])<r && this->population[j]._x()>0 )
 			{
 				xj= this->population[j]._x();
 				v2x += xj - xi;
@@ -273,20 +272,20 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	}
 	return v2x;
 }
-//--------------------------------------------------------------------------
 
+//--------------------------------------------------------------------------
  double Boid::v2y(int i)                    // v2y
 {
 	int j;
 	int K=this->_K(i);
 	double v2y=0;
-	if(K!=0 && this->population[i].x>0)
+	if(K!=0 && this->population[i]._x()>0)
 	{
 		double yi= this->population[i]._y();
 		double yj;
 		for (j=0 ; j<this->N ; j++)
 		{
-			if((j!=i) && (this->distance(this->population[i],this->population[j])<r) && this->population[j].x>0 )
+			if((j!=i) && (this->distance(this->population[i],this->population[j])<r) && this->population[j]._x()>0 )
 			{
 				yj= this->population[j]._y();
 				v2y += yj - yi;
@@ -305,13 +304,13 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	
 	int Kprim=this->_Kprim(i);
 	double vbx=0;
-	if(Kprim!=0 && this->population[i].x>0)
+	if(Kprim!=0 && this->population[i]._x()>0)
 	{
 		double xi= this->population[i]._x();
 		double xj;
 		for (j=0 ; j<this->N ; j++)
 		{
-			if(j!=i && this->distance(this->population[i],this->population[j])<c && this->population[j].x>0)
+			if(j!=i && this->distance(this->population[i],this->population[j])<c && this->population[j]._x()>0)
 			{
 				xj= this->population[j]._x();
 				vbx += xj - xi;
@@ -322,14 +321,14 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	
 	int O=this->_O(i);
 	double vox=0;
-	if(O!=0 && this->population[i].x>0)
+	if(O!=0 && this->population[i]._x()>0)
 	{
 
 		double xi= this->population[i]._x();
 		double xj;
 		for (j=0 ; j<this->P ; j++)
 		{
-			if(j!=i && this->distance(this->population[i],this->obstacles[j])<c && this->population[j].x>0)
+			if(this->distance(this->population[i],this->obstacles[j])<c)
 			{
 				xj= this->obstacles[j]._x();
 				vox += xj - xi;
@@ -348,13 +347,13 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	
 	int Kprim=this->_Kprim(i);
 	double vby=0;
-	if(Kprim!=0 && this->population[i].x>0)
+	if(Kprim!=0 && this->population[i]._x()>0)
 	{
 		double yi= this->population[i]._y();
 		double yj;
 		for (j=0 ; j<this->N ; j++)
 		{
-			if(j!=i && this->distance(this->population[i],this->population[j])<c && this->population[j].x>0)
+			if(j!=i && this->distance(this->population[i],this->population[j])<c && this->population[j]._x()>0)
 			{
 				yj= this->population[j]._y();
 				vby += yj - yi;
@@ -365,13 +364,13 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	
 	int O=this->_O(i);
 	double voy=0;
-	if(O!=0 && this->population[i].x>0)
+	if(O!=0 && this->population[i]._x()>0)
 	{
 		double yi= this->population[i]._y();
 		double yj;
 		for (j=0 ; j<this->P ; j++)
 		{
-			if(j!=i && this->distance(this->population[i],this->obstacles[j])<c && this->population[j].x>0)
+			if(this->distance(this->population[i],this->obstacles[j])<c)
 			{
 				yj= this->obstacles[j]._y();
 				voy += yj - yi;
@@ -392,7 +391,7 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	for(k=0; k< this->N; k++)
 	{
 		u = this->distance(this->population[k],this->predator);
-		if( u < x && this->population[k].x>0)
+		if( u < x && this->population[k]._x()>0)
 		{
 			x = u;
 			m=k;
@@ -410,7 +409,7 @@ int Boid::_Opred(void)                     //calculates the number of obstacles 
 	for(k=0; k< this->N; k++)
 	{
 		u = this->distance(this->population[k],this->predator);
-		if(u < x && this->population[k].x>0)
+		if(u < x && this->population[k]._x()>0)
 		{
 			x = u;
 			m=k;
@@ -458,7 +457,6 @@ double Boid::vx(int i)                        //vx
 	return vx;
 }
 //--------------------------------------------------------------------------
-
 double Boid::vy(int i)                        //vy 
 {
 	double vy;
@@ -519,10 +517,10 @@ double Boid::vpredx(void)
 	if(this->distance(this->predator , this->prey()) > Rp)
 	{
 		vpredx=(((double) rand())/RAND_MAX);
-		if(this->distance(this->predator, this->prey())<m)
-		{
-			vpredx=0;
-		}
+	}
+	if(this->distance(this->predator, this->prey()) < m)
+	{
+		vpredx=0;
 	}
 	else
 	{
@@ -531,17 +529,16 @@ double Boid::vpredx(void)
 	return vpredx - this->vpredox();
 }
 //--------------------------------------------------------------------------
-
 double Boid::vpredy(void)
 {
 	double vpredy;
 	if(this->distance(this->predator , this->prey()) > Rp)
 	{
 		vpredy=(((double) rand())/RAND_MAX);
-		if(this->distance(this->predator, this->prey())<m)
-		{
-			vpredy=0;
-		}
+	}
+	if(this->distance(this->predator, this->prey()) < m)
+	{
+		vpredy=0;
 	}
 	else
 	{
@@ -554,13 +551,26 @@ double Boid::vpredy(void)
 double Boid::xevol(int i)              // x(t+dt)
 {
 	double x;
-	if(this->distance(this->predator,this->population[i])<m)
+	int counter;
+	if(this->distance(this->predator,this->population[i]) < m)          // pause de digestion
 	{
-		x = -10;
+		this->population[i].setvx(0);
+		for(counter=0;counter<4;counter++)
+		{
+			usleep(1000);
+		}
+		this->population[i].setx(-10);
 	}
-	else
+	x = this->population[i]._x() + this->population[i].dt * this->vx(i) ;
+	if(this->population[i]._x() == 1)                                        // bordures
 	{
-		x = this->population[i].dt * this->vx(i) ;
+		this->population[i].setvx(this->population[i]._vx() + 3);
+		this->population[i].setx(this->population[i]._x() + 1);
+	}
+	if(this->population[i]._x() == this->W -1)
+	{
+		this->population[i].setvx(this->population[i]._vx() - 3);
+		this->population[i].setx(this->population[i]._x() - 1);
 	}
 	return x;
 }
@@ -569,13 +579,26 @@ double Boid::xevol(int i)              // x(t+dt)
 double Boid::yevol(int i)             // y(t+dt)
 {
 	double y;
-	if(this->distance(this->predator,this->population[i])<m)
+	int counter;
+	if(this->distance(this->predator,this->population[i]) < m)          // pause de digestion
 	{
-		y = -10;
+		this->population[i].setvy(0);
+		for(counter=0;counter<4;counter++)
+		{
+			usleep(1000);
+		}
+		this->population[i].sety(-10);
 	}
-	else
+	y = this->population[i]._y() + this->population[i].dt * this->vy(i);
+	if(this->population[i]._y() == 1 )                                       // bordures
 	{
-		y = this->population[i].dt * this->vy(i);
+		this->population[i].setvy(this->population[i]._vy() + 3);
+		this->population[i].sety(this->population[i]._y() + 1);
+	}
+	if(this->population[i]._y() == this->H -1)
+	{
+		this->population[i].setvy(this->population[i]._vy() - 3);
+		this->population[i].sety(this->population[i]._y() - 3);
 	}
 	return y;
 }
@@ -589,10 +612,6 @@ double Boid::ypredevol(void)
 {
 	return this->predator._y() + this->predator.dt * this->vpredy();
 }
-
-// ===========================================================================
-//                                Protected Methods
-// ===========================================================================
 
 // ===========================================================================
 //                               Non inline accessors

@@ -111,12 +111,13 @@ for(i=0;i<5;i++)
 	bwindow win(W,H);
     printf("%d\n",win.init());
     win.map();
-	
+
    	int k;
 
     for(;;)
     {
 	    int ev = win.parse_event();
+
 		switch(ev)
 			{
 				case BKPRESS :
@@ -130,53 +131,55 @@ for(i=0;i<5;i++)
 				case BCONFIGURE:
 				printf("configure\n"); break;
 			}
-
 // dessin des obstacles
 			for(k=0;k<pop.P;k++)
 			{
-				win.draw_fsquare(pop._obstacles()[k]._x() - 5, pop._obstacles()[k]._y() - 5, pop._obstacles()[k]._x() + 5, pop._obstacles()[k]._y() + 5, 0xFF0);
+				win.draw_fsquare(pop._obstacles()[k]._x() - 3, pop._obstacles()[k]._y() - 3, pop._obstacles()[k]._x() + 3, pop._obstacles()[k]._y() + 3, 0xFF6600);
 			}
 // nettoie l'écran pour les birds
 			for(k=0;k<pop.N;k++)
 			{ 
-				win.draw_fsquare(pop[k].x - 3, pop[k].y - 3, pop[k].x + 3, pop[k].y + 3,0xFEFEFE);
+				win.draw_fsquare(pop[k]._x()- 2, pop[k]._y() - 2, pop[k]._x() + 2, pop[k]._y() + 2,0xFEFEFE);
 			}	
 // dessin de la population
 			for(k=0;k<pop.N;k++)
 			{ 
-				pop.population[k].x += pop.xevol(k);
-				pop.population[k].y += pop.yevol(k);
-				win.draw_square(pop.population[k].x - 2, pop.population[k].y - 2, pop.population[k].x + 2, pop.population[k].y + 2, 0xFF00);
+				pop.population[k].setx(pop.xevol(k));
+				pop.population[k].sety(pop.yevol(k));
+				
+				if(pop.population[i]._x() < 1)
+				{
+					pop.population[i].setvx(pop.population[i]._vx() + 3);
+					//pop.population[i].setx(pop.population[i]._x() + 1);
+				}
+				if(pop.population[i]._x() > 500)
+				{
+					pop.population[i].setvx(pop.population[i]._vx() - 3);
+					//pop.population[i].setx(pop.population[i]._x() - 1);
+				}
+				if(pop.population[i]._y() < 1 )
+				{
+					pop.population[i].setvy(pop.population[i]._vy() + 3);
+					//pop.population[i].sety(pop.population[i]._y() + 1);
+				}
+				if(pop.population[i]._y() > 500)
+				{
+					pop.population[i].setvy(pop.population[i]._vy() - 3);
+					//pop.population[i].sety(pop.population[i]._y() - 3);
+				}
+				
+				win.draw_square(pop.population[k]._x() - 1, pop.population[k]._y() - 1, pop.population[k]._x() + 1, pop.population[k]._y() + 1, 0x993300);
 			}
-// vent
-			for(k=0;k<pop.N;k++)
-			{ 
-				if(pop.population[k].x < 2 )
-				{
-				pop.population[k].x -= pop.xevol(k);
-				}
-				if( pop.population[k].x > pop.W -2)
-				{
-				pop.population[k].x -= pop.xevol(k);
-				}
-				if(pop.population[k].y < 2 )
-				{
-				pop.population[k].y -= pop.yevol(k);
-				}
-				if(pop.population[k].y > pop.H - 2)
-				{
-				pop.population[k].y -= pop.yevol(k);
-				}
-			}
+
 
 // nettoie l'écran pour le prédateur
-		win.draw_fsquare(pop.predator.x - 3, pop.predator.y - 3, pop.predator.x + 3, pop.predator.y + 3, 0xFEFEFE) ;
+		win.draw_fsquare(pop.predator._x() - 3, pop.predator._y() - 3, pop.predator._x() + 3, pop.predator._y() + 3, 0xFEFEFE) ;
 // dessin du prédateur
-		pop.predator.x += pop.predator.dt * pop.vpredx();
-		pop.predator.y += pop.predator.dt * pop.vpredy();
-		win.draw_fsquare(pop.predator.x - 3, pop.predator.y - 3, pop.predator.x + 3, pop.predator.y + 3, 0xFF0000) ;
+		pop.predator.setx(pop.xpredevol());
+		pop.predator.sety(pop.ypredevol());
+		win.draw_fsquare(pop.predator._x() - 3, pop.predator._y() - 3, pop.predator._x() + 3, pop.predator._y() + 3, 0x00FFCC) ;
 
-		usleep(1000);
+	//	usleep(1000);
     }
 
     return 0;

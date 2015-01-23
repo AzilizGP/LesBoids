@@ -1,13 +1,3 @@
-/*
-A FAIRE
-- créer un tableau Nx2 de Birds
-- le remplir de xi et yi aléatoires
-- définir le rayon de perception par une méthode qui compte le nombre de bird K dans ce cercle
-- définir la distance de contact c
-- définir les obstacles
-- définir v1, v2 et v3
-*/
-
 
 #ifndef __BOID_H__
 #define __BOID_H__
@@ -18,17 +8,13 @@ A FAIRE
 // ===========================================================================
 #include <cstdio>
 #include <cstdlib>
-#include "Bird.h"
-#include "Obstacle.h"
-
-
+#include <ctime>
 
 // ===========================================================================
 //                                Project Files
 // ===========================================================================
-
-
-
+#include "Bird.h"
+#include "Obstacle.h"
 
 // ===========================================================================
 //                              Class declarations
@@ -37,10 +23,6 @@ A FAIRE
 class Boid
 {
   public :
-    
-    // =======================================================================
-    //                                 Enums
-    // =======================================================================
     
     // =======================================================================
     //                               Constructors
@@ -57,18 +39,20 @@ class Boid
     //                            Accessors: getters
     // =======================================================================
 
-    int _N(void) const;
-    int _P(void) const;
+    int _N(void) const;					//total number of birds
+    int _P(void) const;					// total number of ibstacles
 
-	double _r(void) const;
-	double _c(void) const;
-	double _Rp(void) const;
-	double _vpx(void) const;
-	double _vpy(void) const;
+	double _r(void) const;				// perception radius
+	double _c(void) const;				// contact distance
+	double _Rp(void) const;				// predator radius
+	double _vpx(void) const;			// predator's speed when hunting
+	double _vpy(void) const;			// predator's speed when hunting
 
 	Bird* _population(void);
 	Obstacle* _obstacles(void);
 	Bird _predator(void);
+	
+// parameters' getters
 	double _gam1(void) const;
 	double _gam2(void) const;
 	double _gam3(void) const;
@@ -88,6 +72,7 @@ class Boid
     //                              Public Methods
     // =======================================================================
    	double _dt(void) const;
+   	void waiting(float temps);
 
 	double distance(Bird b1, Bird b2);     // calculates the distance between 2 birds
 	double distance(Bird b, Obstacle o);   // calculates the distance between a bird and an obstacle
@@ -109,31 +94,31 @@ class Boid
 	double v4y(int i);
 	double vy(int i);
 	
-	double xevol(int i);            // return the ith bird's x coordinate at t+dt time
-	double yevol(int i);            // return the ith bird's y coordinate at t+dt time
+	double xevol(int i);            // returns the ith bird's x coordinate at t+dt time
+	double yevol(int i);            // returns the ith bird's y coordinate at t+dt time
 	
 // predator's speed
-	Bird prey(void);         		// return the closest prey to the predator
-	int preyindex(void);     		// return the closest prey's index
-	double preyx(void);     		// return the coordinate x of the closest prey to the predator
-	double preyy(void);	 			// return the coordinate y of the closest prey to the predator
-	double vpredox(void);
+	Bird prey(void);         		// returns the closest prey to the predator
+	int preyindex(void);     		// returns the closest prey's index
+	double preyx(void);     		// returns the coordinate x of the closest prey to the predator
+	double preyy(void);	 			// returns the coordinate y of the closest prey to the predator
+	double vpredox(void);			// returns obstacles influence on the predator
 	double vpredoy(void);
-	double vpredx(void);
+	double vpredx(void);			// returns the predator's speed
 	double vpredy(void);
 	
-	double xpredevol(void);			// return the predator's x coordinate at t+dt time
-	double ypredevol(void);			// return the predator's y coordinate at t+dt time
+	double xpredevol(void);			// returns the predator's x coordinate at t+dt time
+	double ypredevol(void);			// returns the predator's y coordinate at t+dt time
 
 
     // =======================================================================
     //                             Public Attributes
     // =======================================================================
 
-  	static const double dt;                           // lapse of time
+  	static const double dt;         // lapse of time
     
-    static const int W;					// window's weight
-	static const int H;					// window's height
+    static const int W;				// window's weight
+	static const int H;				// window's height
 
 	static const int N; 			// number of birds in the whole environment
 	static const int P;             // number of obstacles
@@ -141,7 +126,7 @@ class Boid
     Bird* population;               // table of birds
 
 
-    static const double vpx;
+    static const double vpx;		// predator's speed when hunting
     static const double vpy;
 
 
@@ -151,11 +136,11 @@ class Boid
     // =======================================================================
     //                             Protected Attributes
     // =======================================================================
-    static const double r;                            // perception radius
-    static const double c;                            // contact distance
-    static const double Rp; 						// predator radius
-    static const double m;							// prey catching distance for the predator
-    Obstacle* obstacles; 							// table of obstacles
+    static const double r;          // perception radius
+    static const double c;          // contact distance
+    static const double Rp; 		// predator radius
+    static const double m;			// prey catching distance for the predator
+    Obstacle* obstacles; 			// table of obstacles
  
  // parameters gamma1, gamma2 and gamma3  
 	static const double gam1;
@@ -163,26 +148,6 @@ class Boid
     static const double gam3;
     static const double gam4;
 };
-
-
-// ===========================================================================
-//                              Getters' definitions
-// ===========================================================================
-
-// ===========================================================================
-//                              Setters' definitions
-// ===========================================================================
-
-// ===========================================================================
-//                             Operators' definitions
-// ===========================================================================
-
-
-
-// ===========================================================================
-//                          Inline functions' definition
-// ===========================================================================
-
 
 
 #endif
