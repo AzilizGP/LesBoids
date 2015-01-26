@@ -34,6 +34,8 @@ class Bird
     double _y(void);
 	double _vx(void);
 	double _vy(void);
+	double _vxmax(void);
+	double _vymax(void);
 
     // =======================================================================
     //                            Accessors: setters
@@ -52,6 +54,9 @@ class Bird
     //                             Public Attributes
     // =======================================================================
   	static const double dt;                           // lapse of time
+
+    static const double vxmax;		// maximum bird's speed
+    static const double vymax;
 
     // =======================================================================
     //                             Protected Attributes

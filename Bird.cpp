@@ -22,6 +22,9 @@
 
  const double Bird::dt=0.5;
 
+ const double Bird::vxmax=5;
+ const double Bird::vymax=5;
+ 
 // ===========================================================================
 //                                  Constructors
 // ===========================================================================
@@ -30,8 +33,8 @@ Bird::Bird(void)
 {
 	x = (((double) rand())/RAND_MAX)*800;         //gives  a random number between 0 and 800
 	y = (((double) rand())/RAND_MAX)*800;
-	vx = (((double) rand())/RAND_MAX)*5;
-	vy = (((double) rand())/RAND_MAX)*5;
+	vx = (((double) rand())/RAND_MAX);
+	vy = (((double) rand())/RAND_MAX);
 }
 
 Bird::Bird( const Bird& bird )
@@ -101,5 +104,14 @@ double Bird::_vy()
 {
   return vy;
 }
-
+//--------------------------------------------------------------------------
+double Bird::_vxmax()
+{
+  return vxmax;
+}
+//--------------------------------------------------------------------------
+double Bird::_vymax()
+{
+  return vymax;
+}
 

@@ -44,7 +44,6 @@ Obstacle::Obstacle(void)
 
 Obstacle::Obstacle( const Obstacle& obstacle )
 {
-	// printf("call to Bird copy constructor\n");
 	x = obstacle.x;
 	y = obstacle.y;
 }

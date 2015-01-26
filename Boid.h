@@ -45,6 +45,7 @@ class Boid
 	double _r(void) const;				// perception radius
 	double _c(void) const;				// contact distance
 	double _Rp(void) const;				// predator radius
+	double _m(void) const;				// predator's contact distance
 	double _vpx(void) const;			// predator's speed when hunting
 	double _vpy(void) const;			// predator's speed when hunting
 
@@ -72,7 +73,8 @@ class Boid
     //                              Public Methods
     // =======================================================================
    	double _dt(void) const;
-   	void waiting(float temps);
+   	int mod4(int n);						// returns n modulo 4
+   	int plusoumoins(void);					// returns +1 or -1
 
 	double distance(Bird b1, Bird b2);     // calculates the distance between 2 birds
 	double distance(Bird b, Obstacle o);   // calculates the distance between a bird and an obstacle
